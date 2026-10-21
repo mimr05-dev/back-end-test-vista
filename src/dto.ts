@@ -31,6 +31,7 @@ export interface CompanyResponse {
 
 export interface ErrorResponse {
   error: string;
+  details?: string[];
 }
 
 // ---- Mappers (database model -> response DTO) ----

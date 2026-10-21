@@ -1,0 +1,56 @@
+{
+  "info": {
+    "name": "Vista API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" }
+  ],
+  "item": [
+    {
+      "name": "Health check",
+      "request": { "method": "GET", "url": "{{baseUrl}}/health" }
+    },
+    {
+      "name": "Create company",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Acme Sdn Bhd\",\n  \"registrationNumber\": \"202001000001\"\n}"
+        },
+        "url": "{{baseUrl}}/companies"
+      }
+    },
+    {
+      "name": "List companies with services",
+      "request": { "method": "GET", "url": "{{baseUrl}}/companies" }
+    },
+    {
+      "name": "Create service",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"companyId\": 1,\n  \"name\": \"Web Development\",\n  \"description\": \"Custom websites\",\n  \"price\": 1500.5\n}"
+        },
+        "url": "{{baseUrl}}/services"
+      }
+    },
+    {
+      "name": "Get service by ID",
+      "request": { "method": "GET", "url": "{{baseUrl}}/services/1" }
+    },
+    {
+      "name": "Create company (validation error example)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{}" },
+        "url": "{{baseUrl}}/companies"
+      }
+    }
+  ]
+}

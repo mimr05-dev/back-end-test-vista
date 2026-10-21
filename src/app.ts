@@ -1,12 +1,14 @@
 import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import { Prisma } from "@prisma/client";
+import { requestLogger } from "./middleware/logger";
 import companyRoutes from "./routes/company.routes";
 import serviceRoutes from "./routes/service.routes";
 
 const app = express();
 
 app.use(cors());
+app.use(requestLogger);
 app.use(express.json());
 
 app.get("/health", (_req, res) => {

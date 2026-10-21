@@ -1,30 +1,36 @@
-import { Router } from "express";
+import { NextFunction, Request, Response, Router } from "express";
+import { body, param } from "express-validator";
 import { prisma } from "../lib/prisma";
 import { CreateServiceRequest, toServiceResponse } from "../dto";
+import { validate } from "../middleware/validate";
 
 const router = Router();
 
-// POST /services
-router.post("/", async (req, res, next) => {
-  try {
-    const { companyId, name, description, price } = (req.body ?? {}) as Partial<CreateServiceRequest>;
+const createServiceRules = [
+  body("companyId")
+    .isInt({ min: 1 }).withMessage("companyId must be a positive integer"),
+  body("name")
+    .isString().withMessage("name must be a string").bail()
+    .trim().notEmpty().withMessage("name is required").bail()
+    .isLength({ max: 191 }).withMessage("name must be at most 191 characters"),
+  body("description")
+    .isString().withMessage("description must be a string").bail()
+    .trim().notEmpty().withMessage("description is required"),
+  body("price")
+    .isFloat({ min: 0, max: 99999999.99 })
+    .withMessage("price must be a number between 0 and 99999999.99"),
+];
 
-    if (typeof companyId !== "number" || !Number.isInteger(companyId)) {
-      res.status(400).json({ error: "companyId must be an integer" });
-      return;
-    }
-    if (typeof name !== "string" || !name.trim()) {
-      res.status(400).json({ error: "name is required" });
-      return;
-    }
-    if (typeof description !== "string" || !description.trim()) {
-      res.status(400).json({ error: "description is required" });
-      return;
-    }
-    if (typeof price !== "number" || !Number.isFinite(price) || price < 0) {
-      res.status(400).json({ error: "price must be a non-negative number" });
-      return;
-    }
+const idRules = [
+  param("id").isInt({ min: 1 }).withMessage("id must be a positive integer"),
+];
+
+// POST /services
+router.post("/", createServiceRules, validate, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { name, description } = req.body as CreateServiceRequest;
+    const companyId = Number(req.body.companyId);
+    const price = Number(req.body.price);
 
     const company = await prisma.company.findUnique({ where: { id: companyId } });
     if (!company) {
@@ -43,13 +49,9 @@ router.post("/", async (req, res, next) => {
 });
 
 // GET /services/:id
-router.get("/:id", async (req, res, next) => {
+router.get("/:id", idRules, validate, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const id = Number(req.params.id);
-    if (!Number.isInteger(id)) {
-      res.status(400).json({ error: "id must be an integer" });
-      return;
-    }
 
     const service = await prisma.service.findUnique({ where: { id } });
     if (!service) {
