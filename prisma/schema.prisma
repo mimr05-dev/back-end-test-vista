@@ -6,3 +6,23 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+model Company {
+  id                 Int       @id @default(autoincrement())
+  name               String
+  registrationNumber String    @unique
+  services           Service[]
+  createdAt          DateTime  @default(now())
+}
+
+model Service {
+  id          Int      @id @default(autoincrement())
+  companyId   Int
+  name        String
+  description String   @db.Text
+  price       Decimal  @db.Decimal(10, 2)
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@index([companyId])
+}
